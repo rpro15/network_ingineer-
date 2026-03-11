@@ -21,6 +21,9 @@ CHECK_GATEWAY="[ ]"
 CHECK_TARGET="[ ]"
 CHECK_PUBLIC_CONNECTIVITY="[ ]"
 CHECK_TOOLING="[ ]"
+CHECK_PORTS="[ ]"
+CHECK_PATH="[ ]"
+CHECK_DNS="[ ]"
 
 usage() {
   cat <<'EOF'
@@ -50,6 +53,11 @@ add_warning() {
 sanitize_name() {
   # Нормализуем имя файла артефакта.
   echo "$1" | tr -c '[:alnum:]' '_'
+}
+
+is_ipv4() {
+  local value="$1"
+  [[ "${value}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]
 }
 
 save_cmd() {
@@ -164,9 +172,12 @@ save_cmd ip_route ip route
 save_cmd ip_rule ip rule
 save_cmd ip_neigh ip neigh
 save_cmd socket_summary ss -s
+# Список портов в состоянии LISTEN и связанных процессов.
+save_cmd socket_listen ss -tulpn
 CHECK_HOST_INFO="[x]"
 CHECK_IF_ROUTE="[x]"
 CHECK_SOCKET="[x]"
+CHECK_PORTS="[x]"
 
 if command -v ping >/dev/null 2>&1; then
   # Ищем default gateway из таблицы маршрутизации.
@@ -201,6 +212,19 @@ if command -v ping >/dev/null 2>&1; then
     if command -v traceroute >/dev/null 2>&1; then
       # Трассировка до target помогает локализовать проблему по пути.
       save_cmd "traceroute_$(sanitize_name "${TARGET}")" traceroute -m 8 "${TARGET}"
+      CHECK_PATH="[x]"
+    fi
+
+    if command -v mtr >/dev/null 2>&1; then
+      # mtr-отчет дает картину потерь/задержек по каждому хопу.
+      save_cmd "mtr_$(sanitize_name "${TARGET}")" mtr -r -c 10 --report-wide "${TARGET}"
+      CHECK_PATH="[x]"
+    fi
+
+    if command -v dig >/dev/null 2>&1 && ! is_ipv4 "${TARGET}"; then
+      # Проверяем DNS-резолв целевого hostname.
+      save_cmd "dig_$(sanitize_name "${TARGET}")" dig +short "${TARGET}"
+      CHECK_DNS="[x]"
     fi
   else
     CHECK_TARGET="[ ]"
@@ -257,6 +281,9 @@ cat >"${OUT_DIR}/otchet_l3_triage.md" <<EOF
 - ${CHECK_GATEWAY} Default gateway connectivity checked
 - ${CHECK_TARGET} Target server connectivity checked
 - ${CHECK_PUBLIC_CONNECTIVITY} Optional public connectivity checked
+- ${CHECK_PORTS} Listening ports snapshot collected
+- ${CHECK_PATH} Path diagnostics (traceroute/mtr) collected
+- ${CHECK_DNS} DNS resolution check collected
 - ${CHECK_TOOLING} Tooling availability recorded
 
 ## Decision
