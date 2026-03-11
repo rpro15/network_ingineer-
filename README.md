@@ -66,7 +66,7 @@
 - `docs/release-readiness-report-template.md` - шаблон release readiness отчета
 - `docs/project-readiness-status.md` - текущий статус готовности проекта
 - `scripts/net_health_check.sh` - сетевой health-check
-- `scripts/run_dpi_smoke.sh` - smoke-прогон по основным DPI-рискам
+- `scripts/run_dpi_smoke.sh` - L3 triage smoke для быстрой локализации инцидента
 - `scripts/collect_support_bundle.sh` - сбор артефактов для эскалации
 - `interview/ready-answers-junior.md` - готовые ответы под junior-профиль
 - `interview/interview-cheatsheet-1page.md` - 1-страничная шпаргалка перед звонком
