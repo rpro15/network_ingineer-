@@ -1,82 +1,64 @@
 # Портфолио Network Engineer (DPI)
 
-Практический проект-портфолио под вакансию инженера по сетевым решениям (DPI).
+## Для чего этот проект
 
-Основной фокус:
+Этот репозиторий показывает, как я подхожу к задачам L3-поддержки и тестирования сетевых решений:
 
-- инсталляция и сопровождение сетевого оборудования
-- проектирование тестовых стендов
-- методики тестирования (manual + smoke automation)
-- диагностика и устранение сетевых проблем
-- поддержка клиентов и качественная эскалация
+- быстро локализую проблему по понятному runbook
+- собираю технические доказательства (evidence)
+- принимаю решение `PASS/FAIL` по проверке
+- оформляю результат так, чтобы его можно было передать команде или заказчику
 
-## Оглавление
+Проще: это не "теория про сети", а практический шаблон действий инженера.
 
-- [Коротко о проекте](#коротко-о-проекте)
-- [Связь с требованиями вакансии](#связь-с-требованиями-вакансии)
-- [Стек и технологии](#стек-и-технологии)
-- [Быстрый старт](#быстрый-старт)
-- [Структура репозитория](#структура-репозитория)
-- [5-минутный маршрут для интервьюера](#5-минутный-маршрут-для-интервьюера)
-- [Важно перед публикацией](#важно-перед-публикацией)
+## Что здесь демонстрируется
 
-## Коротко о проекте
+- L2/L3 базовые проверки: `VLAN`, `STP`, `LACP`, `OSPF`, `BGP`, `IS-IS`
+- подход к DPI-валидации: точность, false positive, регресс
+- L3 triage во время инцидента
+- аккуратная эксплуатационная документация
 
-Репозиторий демонстрирует базовую инженерную зрелость по сетевому направлению:
+## Как запустить за 3 минуты
 
-- L2/L3: `VLAN`, `Q-in-Q`, `STP`, `LACP`, `OSPF`, `BGP`, `IS-IS` (на уровне проверки)
-- понимание `QoS/H-QoS`, `Multicast` (`IGMP/PIM`)
-- подход к качеству DPI-сигнатур: точность, false positive, регресс
-- практический troubleshooting-процесс и runbook-дисциплина
+1. Откройте `scripts/README.md`.
+2. Запустите health-check:
 
-## Связь с требованиями вакансии
+```bash
+./scripts/net_health_check.sh
+```
 
-- Инсталляция/настройка/сопровождение: `network/`, `docs/runbook-first-response.md`
-- Тестовые стенды и ПНР: `network/lab-topology.md`, `docs/quick-start-checklist.md`
-- Методики тестирования: `network/dpi-signature-validation-method.md`, `tests/`
-- Поиск и устранение неполадок: `docs/troubleshooting-case-study.md`
-- Техническая поддержка клиентов: `docs/customer-support-ticket-template.md`, `scripts/collect_support_bundle.sh`
+3. Запустите L3 triage для конкретного сервера:
 
-## Стек и технологии
+```bash
+./scripts/run_dpi_smoke.sh --target 10.10.0.15 --count 4
+```
 
-- Linux: базовая диагностика и сбор evidence
-- Сети: OSPF/BGP/IS-IS, VLAN/Q-in-Q/STP/LACP, QoS/H-QoS, IGMP/PIM
-- Инструменты: `ip`, `ss`, `tcpdump`, `tshark`, `mtr`, `nmap`
-- Bash-скрипты для smoke-проверок и support bundle
+4. Проверьте результат в папке вида `proverka_l3_YYYYMMDD_HHMMSS`.
+5. Откройте файл отчета `otchet_l3_triage.md`.
 
-## Быстрый старт
+## Что важно для работодателя
 
-1. Открыть `docs/quick-start-checklist.md`.
-2. Прогнать `scripts/net_health_check.sh`.
-3. Прогнать `scripts/run_dpi_smoke.sh`.
-4. Сверить результат с `tests/regression-checklist.md`.
-5. Заполнить `tests/dpi-test-report-template.md`.
+- Есть понятный процесс первичной диагностики инцидента (`docs/runbook-first-response.md`)
+- Есть скрипты, которые экономят время L3 (`scripts/`)
+- Есть шаблоны тестов и отчетов (`tests/`, `docs/`)
+- Есть структурированный подход к выпуску изменений (`docs/release-readiness-report-template.md`)
 
-## Структура репозитория
+## Структура проекта
 
-- `network/lab-topology.md` - логическая схема и зоны стенда
-- `network/routing-and-switching-baseline.md` - baseline для L2/L3
-- `network/dpi-signature-validation-method.md` - методика валидации DPI
-- `tests/dpi-test-cases.md` - матрица тест-кейсов DPI
-- `tests/regression-checklist.md` - чек-лист регрессии перед релизом
-- `tests/dpi-test-report-template.md` - шаблон итогового отчета по прогону
-- `docs/runbook-first-response.md` - runbook первичной реакции на инцидент
-- `docs/troubleshooting-case-study.md` - пример расследования инцидента
-- `docs/release-readiness-report-template.md` - шаблон release readiness отчета
-- `scripts/net_health_check.sh` - сетевой health-check
-- `scripts/run_dpi_smoke.sh` - L3 triage smoke для быстрой локализации инцидента
-- `scripts/collect_support_bundle.sh` - сбор артефактов для эскалации
+- `scripts/` - практические скрипты диагностики и сбора артефактов
+- `network/` - методики и baseline-проверки по сети
+- `tests/` - матрица тест-кейсов и шаблон отчета
+- `docs/` - runbook, кейс расследования, шаблоны эксплуатационных документов
 
-## 5-минутный маршрут для интервьюера
+## 5-минутный просмотр
 
 1. `README.md`
-2. `network/dpi-signature-validation-method.md`
-3. `tests/dpi-test-cases.md`
-4. `docs/troubleshooting-case-study.md`
-5. `docs/release-readiness-report-template.md`
+2. `scripts/README.md`
+3. `scripts/run_dpi_smoke.sh`
+4. `docs/runbook-first-response.md`
+5. `tests/dpi-test-cases.md`
 
 ## Важно перед публикацией
 
-- Удалить чувствительные данные и реальные реквизиты.
-- Проверить `docs/pre-publish-checklist.md`.
-- Оставить только обезличенные примеры.
+- Удаляйте чувствительные данные и реальные реквизиты
+- Используйте `docs/pre-publish-checklist.md`
