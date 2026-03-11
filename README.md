@@ -18,7 +18,6 @@
 - [Быстрый старт](#быстрый-старт)
 - [Структура репозитория](#структура-репозитория)
 - [5-минутный маршрут для интервьюера](#5-минутный-маршрут-для-интервьюера)
-- [Подготовка к собеседованию](#подготовка-к-собеседованию)
 - [Важно перед публикацией](#важно-перед-публикацией)
 
 ## Коротко о проекте
@@ -64,12 +63,9 @@
 - `docs/runbook-first-response.md` - runbook первичной реакции на инцидент
 - `docs/troubleshooting-case-study.md` - пример расследования инцидента
 - `docs/release-readiness-report-template.md` - шаблон release readiness отчета
-- `docs/project-readiness-status.md` - текущий статус готовности проекта
 - `scripts/net_health_check.sh` - сетевой health-check
 - `scripts/run_dpi_smoke.sh` - L3 triage smoke для быстрой локализации инцидента
 - `scripts/collect_support_bundle.sh` - сбор артефактов для эскалации
-- `interview/ready-answers-junior.md` - готовые ответы под junior-профиль
-- `interview/interview-cheatsheet-1page.md` - 1-страничная шпаргалка перед звонком
 
 ## 5-минутный маршрут для интервьюера
 
@@ -77,14 +73,7 @@
 2. `network/dpi-signature-validation-method.md`
 3. `tests/dpi-test-cases.md`
 4. `docs/troubleshooting-case-study.md`
-5. `interview/ready-answers-junior.md`
-
-## Подготовка к собеседованию
-
-- Основные ответы: `interview/ready-answers-junior.md`
-- Вопросы тимлиду: `interview/questions-to-teamlead.md`
-- Самопрезентация: `interview/self-intro-90-seconds.md`
-- Шпаргалка 1 страница: `interview/interview-cheatsheet-1page.md`
+5. `docs/release-readiness-report-template.md`
 
 ## Важно перед публикацией
 

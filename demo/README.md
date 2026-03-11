@@ -12,7 +12,7 @@
 4. Показать `scripts/run_dpi_smoke.sh` и папку с generated evidence.
 5. Открыть `tests/dpi-test-cases.md` и `tests/dpi-test-report-template.md`.
 6. Открыть `docs/troubleshooting-case-study.md` как пример расследования.
-7. Закрыть демо самопрезентацией из `interview/self-intro-90-seconds.md`.
+7. Закрыть демо коротким выводом: что проверено, что зафиксировано, какие следующие шаги.
 
 ## Команды (Windows + WSL)
 

@@ -40,11 +40,11 @@ wsl bash -lc 'cd /mnt/c/Users/rpro1/my_projects/network_ingineer- && ./scripts/c
 
 ## Что должно появиться
 
-- после smoke: папка `smoke_result_YYYYMMDD_HHMMSS`
+- после L3 triage: папка `proverka_l3_YYYYMMDD_HHMMSS`
 - после support bundle: папка `support_bundle_YYYYMMDD_HHMMSS`
 
 ## Как использовать в L3-инциденте
 
 1. Запустить triage на affected ноде с `--target`.
-2. Проверить `smoke_summary.md` и `ping_*.txt`.
+2. Проверить `otchet_l3_triage.md` и `ping_*.txt`.
 3. При `FAIL` приложить папку в тикет и перейти к protocol-specific диагностике.

@@ -1,6 +1,6 @@
 # Generated runtime artifacts
 support_bundle_*/
-smoke_result_*/
+proverka_l3_*/
 
 # OS/editor noise
 .DS_Store

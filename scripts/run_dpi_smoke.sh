@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+# Строгий режим bash для предсказуемого поведения скрипта.
 set -euo pipefail
 
+# Параметры запуска и значения по умолчанию.
 TARGET=""
 PING_COUNT=4
 PING_TIMEOUT=2
@@ -8,6 +10,7 @@ CHECK_PUBLIC=0
 PUBLIC_TARGET="8.8.8.8"
 STRICT_GATEWAY=0
 
+# Переменные итогового решения и чек-листа L3 triage.
 L3_RESULT="PASS"
 FAIL_REASONS=()
 WARNINGS=()
@@ -34,19 +37,23 @@ EOF
 }
 
 mark_fail() {
+  # Любая критичная проблема переводит triage в FAIL.
   L3_RESULT="FAIL"
   FAIL_REASONS+=("$1")
 }
 
 add_warning() {
+  # Некритичные отклонения фиксируем как предупреждения.
   WARNINGS+=("$1")
 }
 
 sanitize_name() {
+  # Нормализуем имя файла артефакта.
   echo "$1" | tr -c '[:alnum:]' '_'
 }
 
 save_cmd() {
+  # Выполняем команду и сохраняем ее вывод в отдельный evidence-файл.
   local name="$1"
   shift
   {
@@ -56,6 +63,7 @@ save_cmd() {
 }
 
 run_ping_check() {
+  # Проверка ICMP-доступности с сохранением результата в файл.
   local label="$1"
   local host="$2"
   local required="$3"
@@ -71,6 +79,7 @@ run_ping_check() {
   set -e
 
   if [[ ${rc} -ne 0 ]]; then
+    # Для обязательных проверок недоступность = FAIL.
     if [[ "${required}" == "required" ]]; then
       mark_fail "ping to ${host} failed"
     fi
@@ -78,6 +87,7 @@ run_ping_check() {
   fi
 
   local loss
+  # Извлекаем процент потерь из стандартного вывода ping.
   loss=$(awk -F',' '/packet loss/ {gsub(/[^0-9]/, "", $3); print $3}' "${outfile}" | tail -n1 || true)
   if [[ -n "${loss}" ]] && [[ "${loss}" -gt 0 ]] && [[ "${required}" == "required" ]]; then
     mark_fail "packet loss to ${host}: ${loss}%"
@@ -88,6 +98,7 @@ run_ping_check() {
 }
 
 while [[ $# -gt 0 ]]; do
+  # Разбор аргументов командной строки.
   case "$1" in
     --target)
       TARGET="${2:-}"
@@ -133,7 +144,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-OUT_DIR="smoke_result_$(date -u +%Y%m%d_%H%M%S)"
+# Папка с артефактами L3-проверки (понятное имя для русскоязычной аудитории).
+OUT_DIR="proverka_l3_$(date -u +%Y%m%d_%H%M%S)"
+# Создаем папку для артефактов текущего прогона.
 mkdir -p "${OUT_DIR}"
 
 log() {
@@ -142,6 +155,7 @@ log() {
 
 log "Start L3 triage smoke run"
 
+# Снимаем базовые системные и сетевые данные для triage.
 save_cmd host_uname uname -a
 save_cmd host_date date -u
 save_cmd ip_addr ip -br addr
@@ -155,6 +169,7 @@ CHECK_IF_ROUTE="[x]"
 CHECK_SOCKET="[x]"
 
 if command -v ping >/dev/null 2>&1; then
+  # Ищем default gateway из таблицы маршрутизации.
   default_gw=$(ip route | awk '/^default/ {print $3; exit}' || true)
   if [[ -n "${default_gw}" ]]; then
     gw_mode="optional"
@@ -162,6 +177,7 @@ if command -v ping >/dev/null 2>&1; then
       gw_mode="required"
     fi
 
+    # Проверяем gateway: в strict-режиме ошибка критична, иначе предупреждение.
     if run_ping_check "default_gw_${default_gw}" "${default_gw}" "${gw_mode}"; then
       CHECK_GATEWAY="[x]"
     else
@@ -175,6 +191,7 @@ if command -v ping >/dev/null 2>&1; then
   fi
 
   if [[ -n "${TARGET}" ]]; then
+    # Проверка целевого сервера/узла (основная для incident scope).
     if run_ping_check "target_${TARGET}" "${TARGET}" "required"; then
       CHECK_TARGET="[x]"
     else
@@ -182,6 +199,7 @@ if command -v ping >/dev/null 2>&1; then
     fi
 
     if command -v traceroute >/dev/null 2>&1; then
+      # Трассировка до target помогает локализовать проблему по пути.
       save_cmd "traceroute_$(sanitize_name "${TARGET}")" traceroute -m 8 "${TARGET}"
     fi
   else
@@ -189,6 +207,7 @@ if command -v ping >/dev/null 2>&1; then
   fi
 
   if [[ "${CHECK_PUBLIC}" -eq 1 ]]; then
+    # Дополнительная проверка внешней связности (опциональная).
     if run_ping_check "public_${PUBLIC_TARGET}" "${PUBLIC_TARGET}" "optional"; then
       CHECK_PUBLIC_CONNECTIVITY="[x]"
     else
@@ -198,11 +217,13 @@ if command -v ping >/dev/null 2>&1; then
 fi
 
 if command -v tcpdump >/dev/null 2>&1; then
+  # Фиксируем версию tcpdump для контекста анализа.
   save_cmd tcpdump_version tcpdump --version
 fi
 CHECK_TOOLING="[x]"
 
 if [[ ${#FAIL_REASONS[@]} -eq 0 ]]; then
+  # Формируем человекочитаемый блок причин FAIL.
   FAIL_REASON_TEXT="none"
 else
   FAIL_REASON_TEXT="$(printf '%s; ' "${FAIL_REASONS[@]}")"
@@ -210,13 +231,14 @@ else
 fi
 
 if [[ ${#WARNINGS[@]} -eq 0 ]]; then
+  # Формируем список предупреждений.
   WARNING_TEXT="none"
 else
   WARNING_TEXT="$(printf '%s; ' "${WARNINGS[@]}")"
   WARNING_TEXT="${WARNING_TEXT%; }"
 fi
 
-cat >"${OUT_DIR}/smoke_summary.md" <<EOF
+cat >"${OUT_DIR}/otchet_l3_triage.md" <<EOF
 # L3 Triage Smoke Summary
 
 ## Run Parameters
@@ -252,5 +274,5 @@ cat >"${OUT_DIR}/smoke_summary.md" <<EOF
 
 EOF
 
-log "L3 smoke run completed: ${OUT_DIR}"
-echo "Review ${OUT_DIR}/smoke_summary.md and attach evidence to ticket."
+log "L3 triage run completed: ${OUT_DIR}"
+echo "Review ${OUT_DIR}/otchet_l3_triage.md and attach evidence to ticket."
