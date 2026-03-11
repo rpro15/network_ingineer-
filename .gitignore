@@ -1,0 +1,7 @@
+# Generated runtime artifacts
+support_bundle_*/
+smoke_result_*/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
