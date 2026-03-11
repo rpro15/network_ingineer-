@@ -64,3 +64,9 @@ wsl bash -lc 'cd /mnt/c/Users/rpro1/my_projects/network_ingineer- && ./scripts/c
 2. Проверить `otchet_l3_triage.md` и `ping_*.txt`.
 3. Проверить `mtr_*`, `traceroute_*`, `dig_*` и `socket_listen.txt`.
 4. При `FAIL` приложить папку в тикет и перейти к protocol-specific диагностике.
+
+После выполнения скрипт выводит короткий итог в консоль:
+
+- `[ИТОГ] L3 triage: PASS` или `FAIL`
+- `[ПРЕДУПРЕЖДЕНИЯ] ...` (если есть)
+- `[ОТЧЕТ] <путь>/otchet_l3_triage.md`

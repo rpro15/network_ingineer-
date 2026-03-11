@@ -303,3 +303,16 @@ EOF
 
 log "L3 triage run completed: ${OUT_DIR}"
 echo "Review ${OUT_DIR}/otchet_l3_triage.md and attach evidence to ticket."
+
+# Короткий итог для демонстрации и быстрого чтения в консоли.
+if [[ "${L3_RESULT}" == "PASS" ]]; then
+  echo "[ИТОГ] L3 triage: PASS"
+else
+  echo "[ИТОГ] L3 triage: FAIL | Причины: ${FAIL_REASON_TEXT}"
+fi
+
+if [[ "${WARNING_TEXT}" != "none" ]]; then
+  echo "[ПРЕДУПРЕЖДЕНИЯ] ${WARNING_TEXT}"
+fi
+
+echo "[ОТЧЕТ] ${OUT_DIR}/otchet_l3_triage.md"
